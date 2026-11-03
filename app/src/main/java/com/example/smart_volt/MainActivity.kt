@@ -9,13 +9,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.example.smart_volt.ui.screens.DeviceSetupScreen
+import com.example.smart_volt.ui.screens.HomeScreen
 import com.example.smart_volt.ui.screens.LoginScreen
 import com.example.smart_volt.ui.theme.SmartVoltTheme
 
-// Pantallas disponibles en el flujo de la app
 enum class Screen {
     LOGIN,
-    DEVICE_SETUP
+    DEVICE_SETUP,
+    HOME
 }
 
 class MainActivity : ComponentActivity() {
@@ -25,16 +26,27 @@ class MainActivity : ComponentActivity() {
         setContent {
             SmartVoltTheme {
                 var currentScreen by remember { mutableStateOf(Screen.LOGIN) }
+                // ID del trabajador que inicia sesión, se propaga a todas las pantallas
+                var workerId by remember { mutableStateOf("") }
 
                 when (currentScreen) {
                     Screen.LOGIN -> LoginScreen(
-                        onLoginClick = { _, _ ->
+                        onLoginClick = { identifier, _ ->
+                            workerId      = identifier.ifBlank { "OP-0000" }
                             currentScreen = Screen.DEVICE_SETUP
                         }
                     )
+
                     Screen.DEVICE_SETUP -> DeviceSetupScreen(
                         onSetupComplete = {
-                            // TODO: navegar al siguiente screen
+                            currentScreen = Screen.HOME
+                        }
+                    )
+
+                    Screen.HOME -> HomeScreen(
+                        workerId    = workerId,
+                        onMarkEntry = {
+                            // TODO: implementar flujo de marcado de entrada
                         }
                     )
                 }
